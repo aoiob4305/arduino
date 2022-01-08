@@ -1,15 +1,16 @@
-// rev0
+// rev1
 // 현재 오고있는 버스의 남은시간을 가져와 LED에 나타냄
 // 사용모듈: NODEMCU 1.0 (ESP12-e)
 // LED타입: WS2801 RBG 스트립
-// 각줄의 첫번째 LED는 항상켜져 있도록 하고 시간을 LED하나당 1분으로 위치처럼 표시 
+// 각줄의 첫번째 LED는 항상켜져 있도록 하고 시간을 LED하나당 1분으로 위치처럼 표시
+// 붐비는 정도를 가져와서 표시함, 붐빌경우(2) led를 적색으로 표기
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <FastLED.h>
 
-#define DEBUG false
+#define DEBUG true
 
 // LED 제어 관련
 #define NUM_LEDS 22
@@ -19,19 +20,22 @@
 #define MAX_POWER 20
 
 //와이파이 관련 
-#define SSID ""
-#define PASS ""
+#define SSID "dslee"
+#define PASS "0195495416"
 
 //버스 데이터 관련
 #define HOWMANYBUSES 10
 #define TIME_TO_HURRY_UP 6
 #define MY_BUS_NUM_1 "5602"
 #define MY_BUS_NUM_2 "5604"
+#define MY_BUS_CROWDED 2
 
 typedef struct BUS {
   String num = "";
   int time1 = 0;
   int time2 = 0;  
+  int crowded1 = 0;
+  int crowded2 = 0;
 };
 
 void wifiInit();
@@ -134,7 +138,9 @@ void getUpcomingBuses() {
       buses[index] = {
         getXmlElementContent(pos, "routeName"),
         getXmlElementContent(pos, "predictTime1").toInt(),
-        getXmlElementContent(pos, "predictTime2").toInt()
+        getXmlElementContent(pos, "predictTime2").toInt(),
+        getXmlElementContent(pos, "crowded1").toInt(),
+        getXmlElementContent(pos, "crowded2").toInt()
       };
       index++;
     } else {
@@ -178,8 +184,12 @@ void printResultsToSerial() {
     Serial.println(buses[i].num);
     Serial.print("1st Bus: ");
     Serial.println(buses[i].time1);
+    Serial.print("is 1st Bus crowded: ");
+    Serial.println(buses[i].crowded1);
     Serial.print("2nd Bus: ");
     Serial.println(buses[i].time2);
+    Serial.print("is 2nd Bus crowded: ");
+    Serial.println(buses[i].crowded2);
     Serial.println("----------------------------------");
   }
 }
@@ -206,7 +216,7 @@ void displayMyBusOnLedStrip(BUS bus, int row) {
     delay(500);
 
     if ((bus.time1 > 0) && (bus.time1 < NUM_LEDS_ROW)) {
-      if (bus.time1 < TIME_TO_HURRY_UP) {
+      if (bus.crowded1 == MY_BUS_CROWDED) {
         leds[bus.time1] = CRGB::Red;
       } else {
         leds[bus.time1] = CRGB::Green;
@@ -214,7 +224,7 @@ void displayMyBusOnLedStrip(BUS bus, int row) {
     }
 
     if ((bus.time2 > 0) && (bus.time2 < NUM_LEDS_ROW)) {
-      if (bus.time2 < TIME_TO_HURRY_UP) {
+      if (bus.crowded2 == MY_BUS_CROWDED) {
         leds[bus.time2] = CRGB::Red;
       } else {
         leds[bus.time2] = CRGB::Green;
@@ -230,7 +240,7 @@ void displayMyBusOnLedStrip(BUS bus, int row) {
     delay(500);
 
     if ((bus.time1 > 0) && (bus.time1 < NUM_LEDS_ROW)) {
-      if (bus.time1 < TIME_TO_HURRY_UP) {
+      if (bus.crowded1 == TIME_TO_HURRY_UP) {
         leds[NUM_LEDS - bus.time1 - 1] = CRGB::Red;
       } else {
         leds[NUM_LEDS - bus.time1 - 1] = CRGB::Green;

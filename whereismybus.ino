@@ -20,8 +20,8 @@
 #define MAX_POWER 20
 
 //와이파이 관련 
-#define SSID "dslee"
-#define PASS "0195495416"
+#define SSID ""
+#define PASS ""
 
 //버스 데이터 관련
 #define HOWMANYBUSES 10

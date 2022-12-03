@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>cat foodscale</title>
+        <meta charset="utf-8">
+        <script>
+            var url = "http://catfoodscale"
+            function writeToLog(message) {
+                var textarea = document.getElementById("log");
+                textarea.append(message);
+            }
+
+            function sendHtmlRequest(url) {
+                var request = new XMLHttpRequest();
+                request.onload = function () {
+                    //if(request.readyState == 4 && request.status === 200) {
+                    if(request.status === 200) {
+                        writeToLog("데이터 받았음");
+                        writeToLog(request.responseText);
+                    } else {
+                        writeToLog("요청 오류");
+                    }
+                };
+                request.open("GET", url, true);
+                request.send(null);
+            }
+
+            function handleTareButtonClick() {
+                writeToLog("tare button clicked");
+                sendHtmlRequest(url + "/tare");
+            }
+
+            function handleCalButtonClick() {
+                writeToLog("cal button clicked");
+                sendHtmlRequest(url + "/cal");
+            }
+
+            function handleGetWeightButtonClick() {
+                writeToLog("getweight button clicked");
+                sendHtmlRequest(url + "/weight");
+            }
+
+            function handleGetScaleDataButtonClick() {
+                writeToLog("getscaledata button clicked");
+                sendHtmlRequest(url + "/getscaledata");
+            }
+        </script>
+    </head>
+    <body>
+        <h1>고양이 밥그릇 저울</h1>
+        <h2># 저울설정값 얻기</h2>
+        <p>기존 저울 설정값을 얻습니다.</p>
+        <button onclick=handleGetScaleDataButtonClick()>getscaledata</button>
+        <h2>1. tare scale</h2>
+        <p>먼저 저울을 빈 상태로 만들고, tare 버튼을 누릅니다.</p>
+        <button onclick=handleTareButtonClick()>tare</button>
+        <h2>2. calibrate scale</h2>
+        <p>저울에 분동을 올린 후 캘리브레이션을 합니다.</p>
+        <button onclick=handleCalButtonClick()>cal</button>
+        <h2>3. get weight from scale</h2>
+        <p>현재 저울에 측정된 무게를 가져옵니다.</p>
+        <button onclick=handleGetWeightButtonClick()>get weight</button>
+
+        <h2>log</h2>
+        <textarea id="log">
+
+        </textarea>
+    </body>
+</html>

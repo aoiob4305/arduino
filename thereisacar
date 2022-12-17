@@ -1,0 +1,58 @@
+// there is a car!!
+// 20221217 rev0 첫번째
+
+#define INTERRUPT_PIN 2
+#define CAUTION_DEVICE  13
+#define INTERVAL_TO_CHECK 1000
+#define INTERVAL_TO_HOLD_A_CAUTION  1000
+
+void thereisacar();
+void caution(bool action);
+
+int count=0;
+volatile int state = LOW;
+
+unsigned int interval = 1000;
+unsigned long millis_previous = 0;
+unsigned long millis_current = 0;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(CAUTION_DEVICE, OUTPUT);
+  pinMode(INTERRUPT_PIN, INPUT);
+  attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), thereisacar, FALLING); // Sets the interrupt function, falling edge triggered interrupts.
+  millis_previous = millis();
+  millis_current = millis();
+}
+
+void loop() {
+  millis_current = millis();
+  if((millis_current - millis_previous) >= INTERVAL_TO_CHECK) {
+    Serial.println(count);
+    if(count > 1) {
+      state = HIGH;
+      caution(true);
+    }
+    count=0;
+    millis_previous = millis_current;
+  }
+  
+  if(state == HIGH) { //When moving objects are detected later, 2s shut down automatically after the ledout light is convenient.
+    delay(INTERVAL_TO_HOLD_A_CAUTION);
+    Serial.println("there is a car");
+    state = LOW;
+    caution(false);
+  }
+}
+
+void thereisacar() { //Interrupt function
+  count++; 
+}
+
+void caution(bool action) {
+  if (action) {
+    digitalWrite(CAUTION_DEVICE, HIGH);
+  } else {
+    digitalWrite(CAUTION_DEVICE, LOW);
+  }
+}

@@ -3,7 +3,7 @@
   #define STAPSK  ""
 #endif
 
-#define AIO_SERVER      "kimyoungwook.com"
+#define AIO_SERVER      ""
 #define AIO_SERVERPORT  1883                   // use 8883 for SSL
 #define AIO_USERNAME    ""
 #define AIO_KEY         ""

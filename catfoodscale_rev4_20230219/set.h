@@ -1,6 +1,6 @@
 #ifndef STASSID
-  #define STASSID "dslee"
-  #define STAPSK  "0195495416"
+  #define STASSID ""
+  #define STAPSK  ""
 #endif
 
 #define AIO_SERVER      "kimyoungwook.com"
